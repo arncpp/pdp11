@@ -23,4 +23,15 @@ void trace(char *str, ...);
 
 void run();
 
+typedef struct {
+    word mask;
+    word opcode;
+    char *name;
+
+    void (*do_func)(void);
+
+} Command;
+
+
+
 #endif //PDP11_PDP_H
