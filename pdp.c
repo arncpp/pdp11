@@ -84,14 +84,22 @@ byte b_read(Adress adr) {
 }
 
 void w_write(Adress adr, word w) {
-    mem[adr] = w & 0xFF;
-    mem[adr + 1] = w >> 8;
+    if (adr < 8) {
+        reg[adr] = w;
+    } else {
+        mem[adr] = w & 0xFF;
+        mem[adr + 1] = w >> 8;
+    }
 }
 
 word w_read(Adress adr) {
-    word w = mem[adr + 1] << 8;
-    w = w | mem[adr];
-    return w;
+    if (adr < 8) {
+        return reg[adr];
+    } else {
+        word w = mem[adr + 1] << 8;
+        w = w | mem[adr];
+        return w;
+    }
 }
 
 void trace(char *str, ...) {
