@@ -1,25 +1,12 @@
 #include <stdio.h>
-//#include "pdp11.h"
+#include "pdp.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
-typedef unsigned char byte;        //8 bit
-typedef unsigned short int word;   //16 bit
-typedef word Adress;               //16 bit
 
-#define MEMSIZE (64*1024)
 byte mem[MEMSIZE];
-
-
-void b_write(Adress adr, byte b);
-
-byte b_read(Adress adr);
-
-void w_write(Adress adr, word w);
-
-word w_read(Adress adr);
-
-void load_file(const char *filename);
+word reg[8];
 
 void test_mem() {
     //пишем байт, читаем байт
@@ -54,8 +41,8 @@ void print_mem() {
 
 
 int main() {
-    load_file("tests/test_2_load/test.txt");
-    print_mem();
+    load_file("tests/test_3_sum/sum.o");
+    run();
     // test_mem();
     return 0;
 }
@@ -105,4 +92,12 @@ word w_read(Adress adr) {
     word w = mem[adr + 1] << 8;
     w = w | mem[adr];
     return w;
+}
+
+void trace(char *str, ...) {
+    va_list str_l;
+            va_start(str_l, str);
+    vprintf(str, str_l);
+            va_end(str_l);
+
 }
