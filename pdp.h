@@ -2,6 +2,7 @@
 #define PDP11_PDP_H
 
 #define MEMSIZE (64*1024)
+#define REGSIZE 8
 #define pc reg[7]
 
 typedef unsigned char byte;        //8 bit
@@ -19,7 +20,9 @@ word w_read(Adress adr);
 
 void load_file(const char *filename);
 
-void trace(char *str, ...);
+void trace(char *st, ...);
+
+void print_register();
 
 void run();
 
@@ -32,6 +35,10 @@ typedef struct {
 
 } Command;
 
+struct Argument {
+    word val;
+    word adr;
+};
 
 
 #endif //PDP11_PDP_H

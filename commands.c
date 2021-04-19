@@ -5,27 +5,31 @@
 
 extern byte mem[MEMSIZE];
 extern word reg[8];
+extern struct Argument ss, dd;
 
 
 void do_halt() {
     trace("THE END!!!\n");
+    print_register();
     exit(0);
 }
 
 void do_mov() {
-    pc += 2;
+    w_write(dd.adr, ss.val);
     trace("mov\n");
 }
 
 void do_add() {
+    word add = ss.val + dd.val;
+    w_write(dd.adr, add);
     trace("add\n");
 }
 
 void nothing() {
     trace("Unknown command.\n");
+    print_register();
     exit(0);
 }
-
 
 
 Command cmd[] = {

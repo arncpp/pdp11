@@ -6,7 +6,7 @@
 
 
 byte mem[MEMSIZE];
-word reg[8];
+word reg[REGSIZE];
 
 void test_mem() {
     //пишем байт, читаем байт
@@ -29,11 +29,12 @@ void test_mem() {
 }
 
 void print_mem() {
-    for (int i = 0x0200;; i++) {
-        byte r = b_read(i);
-        printf("%02hhx\n", r);
+    for (int i = 01000;;) {
+        word r = w_read(i);
+        printf("%06o: %06o\n",i, r);
         if (r == 0)
             break;
+        i+=2;
 
     }
 
@@ -41,8 +42,10 @@ void print_mem() {
 
 
 int main() {
-    load_file("tests/test_3_sum/sum.o");
+    load_file("tests/test_4_modes/testmodes.o");
+    print_mem();
     run();
+    print_register();
     // test_mem();
     return 0;
 }
@@ -102,10 +105,18 @@ word w_read(Adress adr) {
     }
 }
 
-void trace(char *str, ...) {
-    va_list str_l;
-            va_start(str_l, str);
-    vprintf(str, str_l);
-            va_end(str_l);
+void trace(char *format, ...) {
+    va_list v_list;
+            va_start(v_list, format);
+    vprintf(format, v_list);
+            va_end(v_list);
+
+}
+
+void print_register() {
+    for (int i = 0; i < REGSIZE; i++) {
+        printf("R[%d]: %06o\n", i, reg[i]);
+
+    }
 
 }
