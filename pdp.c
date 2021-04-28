@@ -31,18 +31,18 @@ void test_mem() {
 void print_mem() {
     for (int i = 01000;;) {
         word r = w_read(i);
-        printf("%06o: %06o\n",i, r);
+        printf("%06o: %06o\n", i, r);
         if (r == 0)
             break;
-        i+=2;
+        i += 2;
 
     }
 
 }
 
 
-int main() {
-    load_file("tests/test_4_modes/testmodes.o");
+int main(int argc, char *argv[]) {
+    load_file(argv[1]);
     print_mem();
     run();
     print_register();
@@ -76,9 +76,22 @@ void load_file(const char *filename) {
     else printf("done\n");
 }
 
-
 void b_write(Adress adr, byte b) {
-    mem[adr] = b;
+    if (adr < 8) {
+        reg[adr] = b;
+        if (b >> 7)
+            reg[adr] = 0xFF00 + b;
+        else
+            reg[adr] = b;
+    } else {
+        mem[adr] = b;
+        if (b >> 7)
+            mem[adr + 1] = 0xFF;
+        else
+            mem[adr + 1] = 0;
+
+    }
+
 }
 
 

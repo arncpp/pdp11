@@ -30,8 +30,8 @@ typedef struct {
     word mask;
     word opcode;
     char *name;
-
     void (*do_func)(void);
+    word params;
 
 } Command;
 
