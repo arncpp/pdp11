@@ -128,7 +128,11 @@ void trace(char *format, ...) {
 
 void print_register() {
     for (int i = 0; i < REGSIZE; i++) {
-        printf("R[%d]: %06o\n", i, reg[i]);
+        if ((i % 2) == 0)
+            printf("R[%d]: %06o  ", i, reg[i]);
+        else
+            printf("R[%d]: %06o  \n", i, reg[i]);
+
 
     }
 

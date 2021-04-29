@@ -8,7 +8,8 @@ extern word reg[];
 extern Command cmd[];
 extern int cmd_len;
 
-struct Argument ss, dd, nn, Rn, B;
+struct Argument ss, dd, nn, Rn, B, xx;
+char flag_Z, flag_N, flag_C, flag_V;
 
 struct Argument mode(word opcode) {
     struct Argument result;
@@ -103,10 +104,13 @@ void get_B(word w) {
     B.val = (w >> 15) & 1;
 }
 
+void get_xx(word w){
+    xx.val = (w & 0xFF);
+}
 
 void run() {
     pc = 01000;
-    while (1) {
+    while (pc!=MEMSIZE-2) {
         word w = w_read(pc);
         trace("%06o %06o: ", pc, w);
         pc += 2;
@@ -121,6 +125,7 @@ void run() {
                 }
                 get_nn(w);
                 get_Rn(w);
+                get_xx(w);
                 cmd[i].do_func();
                 break;
             }
