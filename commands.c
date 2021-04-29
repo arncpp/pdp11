@@ -154,10 +154,19 @@ void do_bpl() {
 }
 
 void do_tst() {
-    if (B.val)
-        set_NZ(b_read(dd.adr));
-    else
-        set_NZ(w_read(dd.adr));
+    if (B.val) {
+        if ((dd.val >> 7) & 1) {
+            flag_Z = 0;
+            flag_N = 1;
+        } else {
+            flag_N = 0;
+            if (dd.val == 0)
+                flag_Z = 1;
+            else
+                flag_Z = 0;
+        }
+    } else
+        set_NZ(dd.val);
     flag_C = 0;
     flag_V = 0;
 }
@@ -175,26 +184,24 @@ void do_mov() {
     else
         w_write(dd.adr, ss.val);
     set_NZ(w_read(dd.adr));
-    trace("mov\n");
+    if ((dd.adr == odata) && ((w_read(ostat) >> 7) & 1))
+        printf("\n```\t%c\t```\n", ss.val);
 }
 
 void do_add() {
     int add = ss.val + dd.val;
     w_write(dd.adr, (word) add);
     set_ALL(add);
-    trace("add\n");
 }
 
 void do_sob() {
     if (--reg[Rn.val] != 0) {
         pc = pc - nn.val * 2;
     }
-    trace("sob\n");
 }
 
 void do_clr() {
     w_write(dd.adr, 0);
-    trace("clr\n");
 }
 
 void nothing() {
@@ -220,7 +227,7 @@ Command cmd[] = {
         {0177777, 0000242, "sev",     do_sev,  0000000},
         {0177777, 0000241, "sec",     do_sec,  0000000},
         {0177777, 0000257, "scc",     do_scc,  0000000},
-        {0177400, 0000400, "br",      do_br,   0000000},
+        {0177400, 0000400, "br",      do_br,   0010000},
         {0177400, 0103000, "bcc",     do_bcc,  0010000},
         {0177400, 0103400, "bcs",     do_bcs,  0010000},
         {0177400, 0001400, "beq",     do_beq,  0010000},

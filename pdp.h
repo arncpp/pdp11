@@ -4,6 +4,8 @@
 #define MEMSIZE (64*1024)
 #define REGSIZE 8
 #define pc reg[7]
+#define odata 0177566
+#define ostat 0177564
 
 typedef unsigned char byte;        //8 bit
 typedef unsigned short int word;   //16 bit
@@ -30,7 +32,9 @@ typedef struct {
     word mask;
     word opcode;
     char *name;
+
     void (*do_func)(void);
+
     word params;
 
 } Command;

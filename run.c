@@ -40,26 +40,17 @@ struct Argument mode(word opcode) {
             result.adr = reg[reg_number];
             result.adr = w_read(result.adr);
             result.val = w_read(result.adr);
-            if (B.val && reg_number != 7)
-                reg[reg_number] += 1;
-            else
-                reg[reg_number] += 2;
+            reg[reg_number] += 2;
             trace("mode 3, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
         case 4:
-            if (B.val && reg_number != 7)
-                reg[reg_number] -= 1;
-            else
-                reg[reg_number] -= 2;
+            reg[reg_number] -= 2;
             result.adr = reg[reg_number];
             result.val = w_read(result.adr);
             trace("mode 4, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
         case 5:
-            if (B.val && reg_number != 7)
-                reg[reg_number] -= 1;
-            else
-                reg[reg_number] -= 2;
+            reg[reg_number] -= 2;
             result.adr = reg[reg_number];
             result.adr = w_read(result.adr);
             result.val = w_read(result.adr);
@@ -104,25 +95,29 @@ void get_B(word w) {
     B.val = (w >> 15) & 1;
 }
 
-void get_xx(word w){
+void get_xx(word w) {
     xx.val = (w & 0xFF);
 }
 
 void run() {
     pc = 01000;
-    while (pc!=MEMSIZE-2) {
+    w_write(ostat, 0x80);
+    while (pc != 0) {
         word w = w_read(pc);
         trace("%06o %06o: ", pc, w);
         pc += 2;
         for (int i = 0; i < cmd_len; i++) {
             if ((w & cmd[i].mask) == cmd[i].opcode) {
                 get_B(w);
+                trace(cmd[i].name);
+                trace(" ");
                 if (get_ss(cmd[i])) {
                     ss = mode(w >> 6);
                 }
                 if (get_dd(cmd[i])) {
                     dd = mode(w);
                 }
+
                 get_nn(w);
                 get_Rn(w);
                 get_xx(w);

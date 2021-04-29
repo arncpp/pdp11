@@ -3,10 +3,12 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 
 
 byte mem[MEMSIZE];
 word reg[REGSIZE];
+int flag_T = 0;
 
 void test_mem() {
     //пишем байт, читаем байт
@@ -42,7 +44,13 @@ void print_mem() {
 
 
 int main(int argc, char *argv[]) {
-    load_file(argv[1]);
+
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-t"))
+            flag_T = 1;
+        else
+            load_file(argv[i]);
+    }
     print_mem();
     run();
     print_register();
@@ -85,11 +93,6 @@ void b_write(Adress adr, byte b) {
             reg[adr] = b;
     } else {
         mem[adr] = b;
-        if (b >> 7)
-            mem[adr + 1] = 0xFF;
-        else
-            mem[adr + 1] = 0;
-
     }
 
 }
@@ -119,10 +122,12 @@ word w_read(Adress adr) {
 }
 
 void trace(char *format, ...) {
-    va_list v_list;
-            va_start(v_list, format);
-    vprintf(format, v_list);
-            va_end(v_list);
+    if (flag_T) {
+        va_list v_list;
+                va_start(v_list, format);
+        vprintf(format, v_list);
+                va_end(v_list);
+    }
 
 }
 
