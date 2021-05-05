@@ -229,7 +229,7 @@ void nothing() {
     exit(0);
 }
 
-// 1 - need DD
+//1 - need DD
 //2 - need SS
 //3 - need SS and DD
 Command cmd[] = {

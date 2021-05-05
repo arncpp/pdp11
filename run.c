@@ -121,7 +121,7 @@ void run() {
                 if (get_dd(cmd[i])) {
                     dd = mode(w);
                 }
-
+                //print_register();
                 get_nn(w);
                 get_Rn(w);
                 get_R(w);
