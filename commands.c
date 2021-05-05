@@ -5,7 +5,7 @@
 
 extern byte mem[MEMSIZE];
 extern word reg[8];
-extern struct Argument ss, dd, nn, Rn, B, xx;
+extern struct Argument ss, dd, nn, Rn, R, B, xx;
 extern char flag_Z, flag_N, flag_C, flag_V;
 
 void set_NZ(word w) {
@@ -171,6 +171,25 @@ void do_tst() {
     flag_V = 0;
 }
 
+void do_jsr() /*При входе в подпрограмму по
+команде JSR R, Adr содержимое регистра R сохраняется в стеке, в регистр Ri
+заносится адрес возврата и в PC заносится адрес перехода*/{
+
+    word temp = dd.adr;
+    w_write(sp -= 2, w_read(Rn.val));
+    w_write(Rn.val, pc);
+    pc = temp;
+
+}
+
+void do_rts()
+{
+    pc = w_read(R.val);
+    reg[R.val] = w_read(sp);
+    sp += 2;
+
+}
+
 
 void do_halt() {
     trace("THE END!!!\n");
@@ -185,7 +204,7 @@ void do_mov() {
         w_write(dd.adr, ss.val);
     set_NZ(w_read(dd.adr));
     if ((dd.adr == odata) && ((w_read(ostat) >> 7) & 1))
-        printf("\n```\t%c\t```\n", ss.val);
+        printf("%c", ss.val);
 }
 
 void do_add() {
@@ -210,38 +229,42 @@ void nothing() {
     exit(0);
 }
 
-// params: 0BXRNSD
+// 1 - need DD
+//2 - need SS
+//3 - need SS and DD
 Command cmd[] = {
-        {0070000, 0010000, "mov",     do_mov,  0100011},
-        {0170000, 0060000, "add",     do_add,  0000011},
-        {0177777, 0000000, "halt",    do_halt, 0000000},
-        {0177000, 0077000, "sob",     do_sob,  0001100},
-        {0077700, 0005000, "clr",     do_clr,  0100001},
-        {0177777, 0000250, "cln",     do_cln,  0000000},
-        {0177777, 0000244, "clz",     do_clz,  0000000},
-        {0177777, 0000242, "clv",     do_clv,  0000000},
-        {0177777, 0000241, "clc",     do_clc,  0000000},
-        {0177777, 0000257, "ccc",     do_ccc,  0000000},
-        {0177777, 0000250, "sen",     do_sen,  0000000},
-        {0177777, 0000244, "sez",     do_sez,  0000000},
-        {0177777, 0000242, "sev",     do_sev,  0000000},
-        {0177777, 0000241, "sec",     do_sec,  0000000},
-        {0177777, 0000257, "scc",     do_scc,  0000000},
-        {0177400, 0000400, "br",      do_br,   0010000},
-        {0177400, 0103000, "bcc",     do_bcc,  0010000},
-        {0177400, 0103400, "bcs",     do_bcs,  0010000},
-        {0177400, 0001400, "beq",     do_beq,  0010000},
-        {0177400, 0002000, "bge",     do_bge,  0010000},
-        {0177400, 0003000, "bgt",     do_bgt,  0010000},
-        {0177400, 0101000, "bhi",     do_bhi,  0010000},
-        {0177400, 0003400, "ble",     do_ble,  0010000},
-        {0177400, 0002400, "blt",     do_blt,  0010000},
-        {0177400, 0101400, "blos",    do_blos, 0010000},
-        {0177400, 0100400, "bmi",     do_bmi,  0010000},
-        {0177400, 0001000, "bne",     do_bne,  0010000},
-        {0177400, 0100000, "bpl",     do_bpl,  0010000},
-        {0077700, 0005700, "tst",     do_tst,  0100001},
-        {0000000, 0000000, "nothing", nothing, 0000000}
+        {0070000, 0010000, "mov",     do_mov,  3},
+        {0170000, 0060000, "add",     do_add,  3},
+        {0177777, 0000000, "halt",    do_halt, 0},
+        {0177000, 0077000, "sob",     do_sob,  0},
+        {0077700, 0005000, "clr",     do_clr,  1},
+        {0177777, 0000250, "cln",     do_cln,  0},
+        {0177777, 0000244, "clz",     do_clz,  0},
+        {0177777, 0000242, "clv",     do_clv,  0},
+        {0177777, 0000241, "clc",     do_clc,  0},
+        {0177777, 0000257, "ccc",     do_ccc,  0},
+        {0177777, 0000250, "sen",     do_sen,  0},
+        {0177777, 0000244, "sez",     do_sez,  0},
+        {0177777, 0000242, "sev",     do_sev,  0},
+        {0177777, 0000241, "sec",     do_sec,  0},
+        {0177777, 0000257, "scc",     do_scc,  0},
+        {0177400, 0000400, "br",      do_br,   0},
+        {0177400, 0103000, "bcc",     do_bcc,  0},
+        {0177400, 0103400, "bcs",     do_bcs,  0},
+        {0177400, 0001400, "beq",     do_beq,  0},
+        {0177400, 0002000, "bge",     do_bge,  0},
+        {0177400, 0003000, "bgt",     do_bgt,  0},
+        {0177400, 0101000, "bhi",     do_bhi,  0},
+        {0177400, 0003400, "ble",     do_ble,  0},
+        {0177400, 0002400, "blt",     do_blt,  0},
+        {0177400, 0101400, "blos",    do_blos, 0},
+        {0177400, 0100400, "bmi",     do_bmi,  0},
+        {0177400, 0001000, "bne",     do_bne,  0},
+        {0177400, 0100000, "bpl",     do_bpl,  0},
+        {0077700, 0005700, "tst",     do_tst,  1},
+        {0177000, 0004000, "jsr",     do_jsr,  1},
+        {0177770, 0000200, "rts",     do_rts,  0},
+        {0000000, 0000000, "nothing", nothing, 0}
 };
 
 int cmd_len = sizeof(cmd) / sizeof(Command);

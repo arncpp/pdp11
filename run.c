@@ -8,7 +8,7 @@ extern word reg[];
 extern Command cmd[];
 extern int cmd_len;
 
-struct Argument ss, dd, nn, Rn, B, xx;
+struct Argument ss, dd, nn, Rn, B, xx, R;
 char flag_Z, flag_N, flag_C, flag_V;
 
 struct Argument mode(word opcode) {
@@ -76,11 +76,11 @@ struct Argument mode(word opcode) {
 }
 
 int get_ss(Command comm) {
-    return (comm.params >> 3) & 1;
+    return (comm.params & 2) == 2;
 }
 
 int get_dd(Command comm) {
-    return (comm.params & 1);
+    return (comm.params & 1) == 1;
 }
 
 void get_nn(word w) {
@@ -97,6 +97,10 @@ void get_B(word w) {
 
 void get_xx(word w) {
     xx.val = (w & 0xFF);
+}
+
+void get_R(word w) {
+    R.val = w & 7;
 }
 
 void run() {
@@ -120,8 +124,11 @@ void run() {
 
                 get_nn(w);
                 get_Rn(w);
+                get_R(w);
                 get_xx(w);
+
                 cmd[i].do_func();
+                printf("\n");
                 break;
             }
         }

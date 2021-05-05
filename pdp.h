@@ -6,6 +6,7 @@
 #define pc reg[7]
 #define odata 0177566
 #define ostat 0177564
+#define sp reg[6]
 
 typedef unsigned char byte;        //8 bit
 typedef unsigned short int word;   //16 bit
