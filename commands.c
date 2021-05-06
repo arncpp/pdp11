@@ -76,81 +76,81 @@ void do_scc() {
 
 void do_br() {
     pc += (char) xx.val * 2;
-    trace("br %d\n", (char) xx.val * 2);
+    trace("br %d", (char) xx.val * 2);
 }
 
 void do_bcc() {
     if (flag_C == 0)
         do_br();
-    trace("do_bcc\n");
+
 }
 
 void do_bcs() {
     if (flag_C == 1)
         do_br();
-    trace("do_bcs\n");
+
 }
 
 void do_beq() {
     if (flag_Z == 1)
         do_br();
-    trace("do_beq\n");
+
 }
 
 void do_bge() {
     if ((flag_N ^ flag_V) == 0)
         do_br();
-    trace("do_bge\n");
+
 }
 
 void do_bgt() {
     if ((flag_Z | (flag_N ^ flag_V)) == 0)
         do_br();
-    trace("do_bgt\n");
+
 }
 
 void do_bhi() {
     if ((flag_C | flag_Z) == 0)
         do_br();
-    trace("do_bhi\n");
+
 }
 
 
 void do_ble() {
     if ((flag_Z | (flag_N ^ flag_V)) == 1)
         do_br();
-    trace("do_ble\n");
+
 }
 
 void do_blt() {
     if ((flag_N ^ flag_V) == 1)
         do_br();
-    trace("do_blt\n");
+
 }
 
 
 void do_blos() {
     if ((flag_C | flag_Z) == 1)
         do_br();
-    trace("do_blos\n");
+
 }
 
 void do_bmi() {
     if (flag_N == 1)
         do_br();
-    trace("do_bmi\n");
+
 }
 
 void do_bne() {
     if (flag_Z == 0)
         do_br();
-    trace("do_bne\n");
+
 }
 
 void do_bpl() {
     if (flag_N == 0)
         do_br();
-    trace("do_bpl\n");
+
 }
 
 void do_tst() {
@@ -171,9 +171,7 @@ void do_tst() {
     flag_V = 0;
 }
 
-void do_jsr() /*При входе в подпрограмму по
-команде JSR R, Adr содержимое регистра R сохраняется в стеке, в регистр Ri
-заносится адрес возврата и в PC заносится адрес перехода*/{
+void do_jsr(){
 
     word temp = dd.adr;
     w_write(sp -= 2, w_read(Rn.val));
@@ -182,8 +180,7 @@ void do_jsr() /*При входе в подпрограмму по
 
 }
 
-void do_rts()
-{
+void do_rts() {
     pc = w_read(R.val);
     reg[R.val] = w_read(sp);
     sp += 2;
@@ -222,6 +219,48 @@ void do_sob() {
 void do_clr() {
     w_write(dd.adr, 0);
 }
+
+void do_bic(){
+    word mask = ss.val;
+    word w = dd.val;
+    trace("m: %06o | w: %06o | ", mask, w);
+    w = ~mask & w;
+    trace("res: %06o", w);
+    w_write(dd.adr, w);
+    set_NZ(w);
+}
+
+void do_ash(){
+    word w = reg[Rn.val];
+    word n = dd.val & 077;
+    trace("%06o >> %o", w, n);
+
+    if (n >> 5) { //отрицательный знак
+        n = (037 + 1) - (char)(n & 037);
+        trace("%d ", -n);
+        for (int i =0; i < n; i++){
+            flag_C = w & 1;
+            word b = w >> 15;
+            w = w >> 1;
+            w = w | (b << 15);
+        }
+    }
+    else { //положительный знак
+        n = (char)(n & 037);
+        trace("%d ", n);
+        for (int i = 0; i < n; i++) {
+            word b = w >> 15;
+            flag_C = b & 1;
+            w = w << 1;
+        }
+    }
+
+    trace("res:%06o", w);
+    set_NZ(w);
+    w_write(Rn.val, w);
+}
+
+
 
 void nothing() {
     trace("Unknown command.\n");
@@ -264,6 +303,8 @@ Command cmd[] = {
         {0077700, 0005700, "tst",     do_tst,  1},
         {0177000, 0004000, "jsr",     do_jsr,  1},
         {0177770, 0000200, "rts",     do_rts,  0},
+        {0170000, 0040000, "bic",     do_bic,  3},
+        {0177000, 0072000, "ash",     do_ash,  1},
         {0000000, 0000000, "nothing", nothing, 0}
 };
 

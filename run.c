@@ -20,12 +20,12 @@ struct Argument mode(word opcode) {
         case 0:                     //Rn
             result.adr = reg_number;
             result.val = reg[result.adr];
-            trace("mode 0, result adr: %o, result val: %o\n", result.adr, result.val);
+            //trace("mode 0, result adr: %o, result val: %o\n", result.adr, result.val);
             break;
         case 1:                     //(Rn)
             result.adr = reg[reg_number];
             result.val = w_read(result.adr);
-            trace("mode 1, result adr: %o, result val: %o \n", result.adr, result.val);
+            //trace("mode 1, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
         case 2:                     //(Rn)+
             result.adr = reg[reg_number];
@@ -34,34 +34,34 @@ struct Argument mode(word opcode) {
                 reg[reg_number] += 1;
             else
                 reg[reg_number] += 2;
-            trace("mode 2, result adr: %o, result val: %o \n", result.adr, result.val);
+            //trace("mode 2, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
         case 3:                    //@(Rn)+
             result.adr = reg[reg_number];
             result.adr = w_read(result.adr);
             result.val = w_read(result.adr);
             reg[reg_number] += 2;
-            trace("mode 3, result adr: %o, result val: %o \n", result.adr, result.val);
+            //trace("mode 3, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
         case 4:
             reg[reg_number] -= 2;
             result.adr = reg[reg_number];
             result.val = w_read(result.adr);
-            trace("mode 4, result adr: %o, result val: %o \n", result.adr, result.val);
+            //trace("mode 4, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
         case 5:
             reg[reg_number] -= 2;
             result.adr = reg[reg_number];
             result.adr = w_read(result.adr);
             result.val = w_read(result.adr);
-            trace("mode 5, result adr: %o, result val: %o \n", result.adr, result.val);
+            //trace("mode 5, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
         case 6:
             x = w_read(pc);
             pc += 2;
             result.adr = x + reg[reg_number];
             result.val = w_read(result.adr);
-            trace("mode 6, result adr: %o, result val: %o \n", result.adr, result.val);
+            //trace("mode 6, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
         case 7:
             x = w_read(pc);
@@ -69,7 +69,7 @@ struct Argument mode(word opcode) {
             result.adr = x + reg[reg_number];
             result.adr = w_read(result.adr);
             result.val = w_read(result.adr);
-            trace("mode 7, result adr: %o, result val: %o \n", result.adr, result.val);
+            //trace("mode 7, result adr: %o, result val: %o \n", result.adr, result.val);
             break;
     }
     return result;
@@ -102,6 +102,20 @@ void get_xx(word w) {
 void get_R(word w) {
     R.val = w & 7;
 }
+void dump_regs() {
+    // NZ-C
+    // trace("NZ-C: %d%d-%d\n", flag_N, flag_Z, flag_C);
+    trace(flag_N ? "n":"-");
+    trace(flag_Z ? "z":"-");
+    trace("-");
+    trace(flag_C ? "c":"-");
+    trace(" ");
+
+    int i;
+    for(i = 0; i < 8; i++)
+        trace("r%o:%o ", i, reg[i]);
+    trace("\n");
+}
 
 void run() {
     pc = 01000;
@@ -128,7 +142,8 @@ void run() {
                 get_xx(w);
 
                 cmd[i].do_func();
-                printf("\n");
+                trace("\n");
+                dump_regs();
                 break;
             }
         }

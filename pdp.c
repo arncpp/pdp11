@@ -8,7 +8,7 @@
 
 byte mem[MEMSIZE];
 word reg[REGSIZE];
-int flag_T = 0;
+int flag_T = 0; // флаг для троссировки
 
 void test_mem() {
     //пишем байт, читаем байт
@@ -86,7 +86,6 @@ void load_file(const char *filename) {
 
 void b_write(Adress adr, byte b) {
     if (adr < 8) {
-        reg[adr] = b;
         if (b >> 7)
             reg[adr] = 0xFF00 + b;
         else
@@ -142,3 +141,4 @@ void print_register() {
     }
 
 }
+
